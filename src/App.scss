@@ -1,0 +1,26 @@
+@import "./styles/_Reset.scss";
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+canvas {
+  background-color: rgba(blue, 0.1);
+}
+
+.game-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 10vh;
+  h1,
+  h2 {
+    min-width: 45vw;
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+}
