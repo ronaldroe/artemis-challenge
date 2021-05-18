@@ -5,4 +5,8 @@ const calcMoveSpeed = (canvasWidth, multiplier = 1) => {
   return (baseSpeed * canvasWidth) / baseWidth;
 };
 
-export { calcMoveSpeed };
+const getRandomValue = (max) => {
+  return Math.round(Math.random() * max);
+};
+
+export { calcMoveSpeed, getRandomValue };

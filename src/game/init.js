@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import HealthBar from "./health";
-import { calcMoveSpeed } from "./math";
+import { Mob } from "./mobs";
+import Player from "./player";
 
 const init = async () => {
   const config = {
@@ -25,23 +26,27 @@ const init = async () => {
   const game = new Phaser.Game(config);
 
   async function preload() {
-    this.load.image("player1", "./sprites/player-1.png");
-    this.load.image("player2", "./sprites/player-2.png");
-    this.load.image("player3", "./sprites/player-3.png");
-    this.load.image("waterDroplet", "./sprites/water-droplet.png");
-    this.load.image("co2", "./sprites/co2.png");
-    this.load.image("sun", "./sprites/sun.png");
+    const sprites = new Map([
+      ["player1", "./sprites/player-1.png"],
+      ["player2", "./sprites/player-2.png"],
+      ["player3", "./sprites/player-3.png"],
+      ["waterDroplet", "./sprites/water-droplet.png"],
+      ["co2", "./sprites/co2.png"],
+      ["sun", "./sprites/sun.png"],
+    ]);
+
+    sprites.forEach((path, name) => {
+      this.load.image(name, path);
+    });
   }
 
   async function create() {
-    // Need to extract entities into their own classes
-    this.player = this.physics.add.sprite(
+    this.player = new Player(
+      this,
       this.sys.game.canvas.width / 2,
-      this.sys.game.canvas.height,
+      this.sys.game.canvas.height / 2,
       "player1"
     );
-
-    this.player.setCollideWorldBounds(true);
 
     this.startHealth = false;
 
@@ -58,30 +63,9 @@ const init = async () => {
       100
     );
 
-    // These are temporary, just for demonstration
-    this.waterDroplet = this.physics.add.sprite(
-      this.sys.game.canvas.width / 4,
-      0,
-      "waterDroplet"
-    );
-
-    this.waterDroplet.setCollideWorldBounds(true);
-
-    this.co2 = this.physics.add.sprite(
-      this.sys.game.canvas.width - this.sys.game.canvas.width / 4,
-      0,
-      "co2"
-    );
-
-    this.co2.setCollideWorldBounds(true);
-
-    this.sun = this.physics.add.sprite(
-      this.sys.game.canvas.width * 0.6,
-      0,
-      "sun"
-    );
-
-    this.sun.setCollideWorldBounds(true);
+    this.waterDroplet = new Mob(this, "waterDroplet", this.healthBar, 20);
+    this.co2 = new Mob(this, "co2", this.healthBar, 20);
+    this.sun = new Mob(this, "sun", this.healthBar, 20);
 
     this.startTime = new Date().getTime();
     this.currentTime = this.startTime;
@@ -92,33 +76,28 @@ const init = async () => {
 
       const timeDiff = new Date(this.currentTime - this.startTime);
 
-      this.displayTime = `${timeDiff.getMinutes}:${timeDiff.getSeconds}`;
+      this.displayTime = `${formatTime(timeDiff.getMinutes())}:${formatTime(
+        timeDiff.getSeconds()
+      )}`;
     }, 1000);
   }
 
   async function update() {
-    const cursors = this.input.keyboard.createCursorKeys();
-    const moveLeft = cursors.left.isDown;
-    const moveRight = cursors.right.isDown;
-
     if (this.startHealth) {
       this.healthBar.updateValue();
     }
 
-    if (moveLeft) {
-      this.player.setVelocityX(calcMoveSpeed(this.sys.game.canvas.width, -1));
-    }
-
-    if (moveRight) {
-      this.player.setVelocityX(calcMoveSpeed(this.sys.game.canvas.width));
-    }
-
-    if (!moveLeft && !moveRight) {
-      this.player.setVelocityX(0);
-    }
+    this.player.move(
+      this.sys.game.canvas.width,
+      this.input.keyboard.createCursorKeys()
+    );
   }
 
   return game;
+};
+
+const formatTime = (num) => {
+  return num < 10 ? "0" + num : num;
 };
 
 export default init;

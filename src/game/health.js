@@ -21,7 +21,9 @@ export default class HealthBar {
     this.healthBar.fillStyle(0xffffff);
     this.healthBar.fillRect(this.x, this.y, this.width / 4, 24);
 
-    if (this.value < 20) {
+    if (this.value === 0) {
+      this.player.die();
+    } else if (this.value < 20) {
       this.healthBar.fillStyle(0xff0000);
       this.player.setTexture("player3");
     } else if (this.value < 50) {
@@ -42,7 +44,7 @@ export default class HealthBar {
       return this.value;
     }
 
-    const dropSpeed = this.scene.physics.world.fps * 10;
+    // const dropSpeed = this.scene.physics.world.fps * 10;
     const newVal = this.value - 0.25;
     this.value = newVal > 0 ? newVal : 0;
 
